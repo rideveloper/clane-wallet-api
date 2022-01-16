@@ -1,11 +1,13 @@
 package com.ridwan.api.clanewalletapi.service.impl;
 
+import com.ridwan.api.clanewalletapi.enums.KycLevel;
 import com.ridwan.api.clanewalletapi.enums.Status;
 import com.ridwan.api.clanewalletapi.exception.CustomException;
 import com.ridwan.api.clanewalletapi.model.User;
 import com.ridwan.api.clanewalletapi.model.Wallet;
 import com.ridwan.api.clanewalletapi.repository.UserRepo;
 import com.ridwan.api.clanewalletapi.request.UserRequest;
+import com.ridwan.api.clanewalletapi.request.upgradeUserRequest;
 import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.response.UserResponse;
 import com.ridwan.api.clanewalletapi.response.WalletResponse;
@@ -81,8 +83,45 @@ public class UserServImpl implements UserService {
     }
 
     @Override
-    public GenericResponse upgradeAccount(Long userId) {
-        return null;
+    public GenericResponse upgradeAccount(Long userId, upgradeUserRequest request) {
+        //get user
+        Optional<User> userOpt = userRepo.findById(userId);
+        if (userOpt.isEmpty())
+            throw new CustomException("User Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
+
+        User user = userOpt.get();
+
+        //check user kycLevel
+        switch (user.getKycLevel()) {
+            case TIER_1:
+                //check if required doc is available
+                if (request.getSelfieUrl().isEmpty())
+                    throw new CustomException("Required document not uploaded", HttpStatus.BAD_REQUEST, Status.FAILED);
+
+                //user is in tier1, upgrade to tier 2
+                user.setSelfieUrl(request.getSelfieUrl());
+                user.setKycLevel(KycLevel.TIER_2);
+                break;
+            case TIER_2:
+                if (request.getIdentificationDocUrl().isEmpty())
+                    throw new CustomException("Required document not uploaded", HttpStatus.BAD_REQUEST, Status.FAILED);
+
+                user.setIdentificationDocUrl(request.getSelfieUrl());
+                user.setKycLevel(KycLevel.TIER_3);
+                break;
+            case TIER_3:
+                return GenericResponse.builder()
+                        .status(Status.SUCCESS)
+                        .message("User already in highest Kyc Level")
+                        .data(mapUserResponse(user)).build();
+        }
+
+        userRepo.saveAndFlush(user);
+
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("User KYC Level Upgraded Successfully")
+                .data(mapUserResponse(user)).build();
     }
 
     private boolean isUserExisting(UserRequest request) {

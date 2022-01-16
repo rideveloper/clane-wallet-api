@@ -2,6 +2,7 @@ package com.ridwan.api.clanewalletapi.controller;
 
 import com.ridwan.api.clanewalletapi.request.TransactionRequest;
 import com.ridwan.api.clanewalletapi.request.UserRequest;
+import com.ridwan.api.clanewalletapi.request.upgradeUserRequest;
 import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.service.UserService;
 import io.swagger.annotations.Api;
@@ -39,10 +40,10 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
-    @PostMapping(path = "/upgrade", consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/{id}/upgrade", consumes = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Upgrade User KYC Level")
-    public ResponseEntity<GenericResponse> upgrade(@RequestBody @Valid TransactionRequest request) {
-        return ResponseEntity.ok(userService.upgradeAccount(1L));
+    public ResponseEntity<GenericResponse> upgrade(@PathVariable("id") Long id, @Valid @RequestBody upgradeUserRequest request) {
+        return ResponseEntity.ok(userService.upgradeAccount(id, request));
     }
 
 }
