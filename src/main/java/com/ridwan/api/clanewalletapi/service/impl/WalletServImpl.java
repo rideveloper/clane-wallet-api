@@ -1,6 +1,8 @@
 package com.ridwan.api.clanewalletapi.service.impl;
 
+import com.ridwan.api.clanewalletapi.enums.Status;
 import com.ridwan.api.clanewalletapi.enums.WalletStatus;
+import com.ridwan.api.clanewalletapi.exception.CustomException;
 import com.ridwan.api.clanewalletapi.model.User;
 import com.ridwan.api.clanewalletapi.model.Wallet;
 import com.ridwan.api.clanewalletapi.repository.WalletRepo;
@@ -35,40 +37,35 @@ public class WalletServImpl implements WalletService {
     }
 
     @Override
-    public Optional<GenericResponse<Wallet>> findUserWallet(String accountNumber) {
-        GenericResponse response = new GenericResponse();
-        response.setStatus(HttpStatus.NOT_FOUND);
-        response.setMessage("Wallet cannot be found");
-
+    public GenericResponse findUserWallet(String accountNumber) {
         Wallet wallet = walletRepo.findWalletByAccountNumber(accountNumber);
 
-        if (wallet != null) {
-            response.setStatus(HttpStatus.OK);
-            response.setMessage("Wallet found successfully");
-            response.setData(wallet);
-        }
+        if (wallet == null)
+            throw new CustomException("User Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
 
-        return Optional.of(response);
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("User Found Successfully")
+                .data(wallet).build();
     }
 
     @Override
-    public Optional<GenericResponse<Wallet>> updateWalletStatus(Long walletId, WalletStatus status) {
-        GenericResponse response = new GenericResponse();
-        response.setStatus(HttpStatus.NOT_FOUND);
-        response.setMessage("Wallet cannot be found");
+    public GenericResponse updateWalletStatus(Long walletId, WalletStatus status) {
 
         Optional<Wallet> wallet = walletRepo.findById(walletId);
-        if (wallet.isPresent()) {
-            Wallet theWallet = wallet.get();
-            theWallet.setWalletStatus(status);
-            walletRepo.saveAndFlush(theWallet);
 
-            response.setStatus(HttpStatus.OK);
-            response.setMessage("Wallet Status update successful");
-            response.setData(theWallet);
-        }
+        if (wallet.isEmpty())
+            throw new CustomException("Wallet Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
 
-        return Optional.of(response);
+        Wallet theWallet = wallet.get();
+        theWallet.setWalletStatus(status);
+        walletRepo.saveAndFlush(theWallet);
+
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("Wallet Status update successful")
+                .data(theWallet).build();
+
     }
 
     private String generateAccountNumber(String firstName) {

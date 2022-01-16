@@ -12,6 +12,6 @@ import java.util.Optional;
  */
 public interface WalletService {
     Optional<Wallet> createUserWallet(User user);
-    Optional<GenericResponse<Wallet>> findUserWallet(String accountNumber);
-    Optional<GenericResponse<Wallet>> updateWalletStatus(Long walletId, WalletStatus status);
+    GenericResponse findUserWallet(String accountNumber);
+    GenericResponse updateWalletStatus(Long walletId, WalletStatus status);
 }

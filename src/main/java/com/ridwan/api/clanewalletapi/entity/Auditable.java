@@ -2,6 +2,8 @@ package com.ridwan.api.clanewalletapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -26,6 +28,7 @@ public abstract class Auditable<U> {
 
     @JsonIgnore
     @CreatedDate
+    @CreationTimestamp
     protected LocalDateTime createdDate;
 
     @JsonIgnore
@@ -34,5 +37,6 @@ public abstract class Auditable<U> {
 
     @JsonIgnore
     @LastModifiedDate
+    @UpdateTimestamp
     protected LocalDateTime lastModifiedDate;
 }

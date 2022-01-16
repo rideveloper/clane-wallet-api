@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * @author Ridwan Mustapha
  */
 @Data
-public class TransferRequest {
+public class TransactionRequest {
 
     @NotEmpty(message = "Source Wallet is compulsory")
     private String sourceWallet;

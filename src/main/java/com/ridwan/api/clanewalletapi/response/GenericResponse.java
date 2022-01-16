@@ -1,15 +1,17 @@
 package com.ridwan.api.clanewalletapi.response;
 
+import com.ridwan.api.clanewalletapi.enums.Status;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 /**
  * @author Ridwan Mustapha
  */
 @Data
-public class GenericResponse<T> {
+@Builder
+public class GenericResponse {
 
-    private HttpStatus status;
+    private Status status;
     private String message;
-    private T data;
+    private Object data;
 }

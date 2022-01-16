@@ -1,5 +1,6 @@
 package com.ridwan.api.clanewalletapi.service.impl;
 
+import com.ridwan.api.clanewalletapi.enums.Status;
 import com.ridwan.api.clanewalletapi.enums.TransactionType;
 import com.ridwan.api.clanewalletapi.enums.TransferMethod;
 import com.ridwan.api.clanewalletapi.enums.WalletStatus;
@@ -10,7 +11,7 @@ import com.ridwan.api.clanewalletapi.model.Wallet;
 import com.ridwan.api.clanewalletapi.repository.TransactionRepo;
 import com.ridwan.api.clanewalletapi.repository.UserRepo;
 import com.ridwan.api.clanewalletapi.repository.WalletRepo;
-import com.ridwan.api.clanewalletapi.request.TransferRequest;
+import com.ridwan.api.clanewalletapi.request.TransactionRequest;
 import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.response.TransactionResponse;
 import com.ridwan.api.clanewalletapi.service.TransactionService;
@@ -19,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -41,67 +41,61 @@ public class TransactionServImpl implements TransactionService {
     }
 
     @Override
-    public Optional<GenericResponse<TransactionResponse>> Transfer(TransferRequest request) {
-        GenericResponse response = new GenericResponse();
+    public GenericResponse Transfer(TransactionRequest request) {
 
         validateAmount(request.getAmount());
         processTransaction(request, TransactionType.TRANSFER);
         TransactionResponse transactionResponse = logTransaction(request, TransactionType.TRANSFER);
 
-        response.setStatus(HttpStatus.OK);
-        response.setMessage("Transaction Successful");
-        response.setData(transactionResponse);
-
-        return Optional.of(response);
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("Transfer Successful")
+                .data(transactionResponse).build();
     }
 
     @Override
-    public Optional<GenericResponse<TransactionResponse>> Withdraw(TransferRequest request) {
-        GenericResponse response = new GenericResponse();
+    public GenericResponse Withdraw(TransactionRequest request) {
 
         validateAmount(request.getAmount());
         processTransaction(request, TransactionType.WITHDRAW);
         TransactionResponse transactionResponse = logTransaction(request, TransactionType.WITHDRAW);
 
-        response.setStatus(HttpStatus.OK);
-        response.setMessage("Transaction Successful");
-        response.setData(transactionResponse);
-
-        return Optional.of(response);
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("Withdraw Successful")
+                .data(transactionResponse).build();
     }
 
     @Override
-    public Optional<GenericResponse<TransactionResponse>> TopUp(TransferRequest request) {
-        GenericResponse response = new GenericResponse();
+    public GenericResponse TopUp(TransactionRequest request) {
 
         validateAmount(request.getAmount());
         processTransaction(request, TransactionType.TOP_UP);
         TransactionResponse transactionResponse = logTransaction(request, TransactionType.TOP_UP);
 
-        response.setStatus(HttpStatus.OK);
-        response.setMessage("Transaction Successful");
-        response.setData(transactionResponse);
-
-        return Optional.of(response);
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("Top Up Successful")
+                .data(transactionResponse).build();
     }
 
     private void checkWalletValidity(Wallet wallet) {
         if (wallet == null) {
-            throw new CustomException("Wallet Not Found", HttpStatus.NOT_FOUND);
+            throw new CustomException("Wallet Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
         }
 
         if (wallet.getWalletStatus().equals(WalletStatus.CLOSED)) {
-            throw new CustomException("Wallet Status Is Closed", HttpStatus.BAD_REQUEST);
+            throw new CustomException("Wallet Status Is Closed", HttpStatus.BAD_REQUEST, Status.FAILED);
         }
     }
 
     private void validateAmount(Double amount) {
         if (amount <= 0.0) {
-            throw new CustomException("Amount must be greater than 0.0", HttpStatus.BAD_REQUEST);
+            throw new CustomException("Amount must be greater than 0.0", HttpStatus.BAD_REQUEST, Status.FAILED);
         }
     }
 
-    private void processTransaction(TransferRequest request, TransactionType type) {
+    private void processTransaction(TransactionRequest request, TransactionType type) {
         Wallet sourceWallet;
         Wallet destinationWallet = null;
         try {
@@ -116,7 +110,7 @@ public class TransactionServImpl implements TransactionService {
                     sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
                     checkWalletValidity(sourceWallet);
                     if (sourceWallet.getBalance() <= request.getAmount()) {
-                        throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST);
+                        throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST, Status.FAILED);
                     }
 
                     if (request.getMethod().equals(TransferMethod.EMAIL)) {
@@ -139,7 +133,7 @@ public class TransactionServImpl implements TransactionService {
                     sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
                     checkWalletValidity(sourceWallet);
                     if (sourceWallet.getBalance() <= request.getAmount()) {
-                        throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST);
+                        throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST, Status.FAILED);
                     }
                     sourceWallet.setBalance(sourceWallet.getBalance() - request.getAmount());
                     walletRepo.saveAndFlush(sourceWallet);
@@ -147,11 +141,11 @@ public class TransactionServImpl implements TransactionService {
 
             }
         } catch (Exception ex) {
-            throw new CustomException(ex.getMessage(), HttpStatus.BAD_REQUEST);
+            throw new CustomException(ex.getMessage(), HttpStatus.BAD_REQUEST, Status.FAILED);
         }
     }
 
-    private TransactionResponse logTransaction(TransferRequest request, TransactionType type) {
+    private TransactionResponse logTransaction(TransactionRequest request, TransactionType type) {
         Transaction transaction = new Transaction();
         transaction.setTransactionType(type);
         transaction.setTransactionReference(generateReference());

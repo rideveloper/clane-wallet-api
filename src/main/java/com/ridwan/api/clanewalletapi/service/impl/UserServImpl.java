@@ -1,5 +1,7 @@
 package com.ridwan.api.clanewalletapi.service.impl;
 
+import com.ridwan.api.clanewalletapi.enums.Status;
+import com.ridwan.api.clanewalletapi.exception.CustomException;
 import com.ridwan.api.clanewalletapi.model.User;
 import com.ridwan.api.clanewalletapi.model.Wallet;
 import com.ridwan.api.clanewalletapi.repository.UserRepo;
@@ -32,41 +34,55 @@ public class UserServImpl implements UserService {
     }
 
     @Override
-    public Optional<GenericResponse<UserResponse>> createUser(UserRequest request) {
-        GenericResponse response = new GenericResponse();
+    public GenericResponse createUser(UserRequest request) {
+        if (isUserExisting(request))
+            throw new CustomException("User Already Exists", HttpStatus.BAD_REQUEST, Status.FAILED);
 
-        if (isUserExisting(request)) {
-            response.setMessage("User already exists");
-            response.setStatus(HttpStatus.BAD_REQUEST);
-        } else {
-            //create user model
-            User user = new User();
-            user.setFirstName(request.getFirstName());
-            user.setMiddleName(request.getMiddleName());
-            user.setLastName(request.getLastName());
-            user.setEmail(request.getEmail());
-            user.setPhoneNumber(request.getPhoneNumber());
-            user.setAddress(request.getAddress());
+        //create user model
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setMiddleName(request.getMiddleName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setAddress(request.getAddress());
 
-            //create wallet with user
-            Optional<Wallet> wallet = walletService.createUserWallet(user);
+        //create wallet with user
+        Optional<Wallet> wallet = walletService.createUserWallet(user);
 
-            wallet.ifPresent(user::setWallet);
+        wallet.ifPresent(user::setWallet);
 
-            userRepo.saveAndFlush(user);
+        userRepo.saveAndFlush(user);
 
-            response.setStatus(HttpStatus.CREATED);
-            response.setMessage("User created successfully");
-            response.setData(mapUserResponse(user));
-
-        }
-
-        return Optional.of(response);
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("User Created Successfully")
+                .data(mapUserResponse(user)).build();
     }
 
     @Override
-    public Optional<GenericResponse<User>> upgradeAccount(Long userId) {
-        return Optional.empty();
+    public GenericResponse updateUser(Long id, UserRequest request) {
+        Optional<User> existingUserOp = userRepo.findById(id);
+        if (existingUserOp.isEmpty())
+            throw new CustomException("User Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
+
+        User existingUser = existingUserOp.get();
+        existingUser.setFirstName(request.getFirstName());
+        existingUser.setMiddleName(request.getMiddleName());
+        existingUser.setLastName(request.getLastName());
+        existingUser.setAddress(request.getAddress());
+
+        userRepo.saveAndFlush(existingUser);
+
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("User Updated Successfully")
+                .data(mapUserResponse(existingUser)).build();
+    }
+
+    @Override
+    public GenericResponse upgradeAccount(Long userId) {
+        return null;
     }
 
     private boolean isUserExisting(UserRequest request) {

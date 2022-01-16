@@ -12,6 +12,7 @@ import java.util.Optional;
  * @author Ridwan Mustapha
  */
 public interface UserService {
-    Optional<GenericResponse<UserResponse>> createUser(UserRequest request);
-    Optional<GenericResponse<User>> upgradeAccount(Long userId);
+    GenericResponse createUser(UserRequest request);
+    GenericResponse updateUser(Long id, UserRequest request);
+    GenericResponse upgradeAccount(Long userId);
 }
