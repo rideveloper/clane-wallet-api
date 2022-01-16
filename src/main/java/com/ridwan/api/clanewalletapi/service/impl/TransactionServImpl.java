@@ -95,6 +95,13 @@ public class TransactionServImpl implements TransactionService {
         }
     }
 
+    private void checkUserTransactionLimit(String accountNumber, Double amount) {
+        User user = userRepo.findByWallet_AccountNumber(accountNumber);
+        if (amount > user.getKycLevel().getTransactionLimit())
+            throw new CustomException("Amount greater than Transaction Limit, Upgrade User Account", HttpStatus.BAD_REQUEST, Status.FAILED);
+
+    }
+
     private void processTransaction(TransactionRequest request, TransactionType type) {
         Wallet sourceWallet;
         Wallet destinationWallet = null;
@@ -120,7 +127,7 @@ public class TransactionServImpl implements TransactionService {
                         destinationWallet = walletRepo.findWalletByAccountNumber(request.getDestinationWallet());
                     }
                     checkWalletValidity(destinationWallet);
-
+                    checkUserTransactionLimit(request.getSourceWallet(), request.getAmount());
                     //debit from source wallet
                     sourceWallet.setBalance(sourceWallet.getBalance() - request.getAmount());
                     walletRepo.saveAndFlush(sourceWallet);
@@ -132,6 +139,7 @@ public class TransactionServImpl implements TransactionService {
                 case WITHDRAW:
                     sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
                     checkWalletValidity(sourceWallet);
+                    checkUserTransactionLimit(request.getSourceWallet(), request.getAmount());
                     if (sourceWallet.getBalance() <= request.getAmount()) {
                         throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST, Status.FAILED);
                     }
