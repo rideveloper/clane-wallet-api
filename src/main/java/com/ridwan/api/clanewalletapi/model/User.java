@@ -1,10 +1,9 @@
 package com.ridwan.api.clanewalletapi.model;
 
-import com.ridwan.api.clanewalletapi.entity.Auditable;
 import com.ridwan.api.clanewalletapi.entity.BaseEntity;
+import com.ridwan.api.clanewalletapi.enums.KycLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -44,5 +43,15 @@ public class User extends BaseEntity {
             cascade =  CascadeType.ALL,
             mappedBy = "user")
     private Wallet wallet;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "kyc_level")
+    private KycLevel kycLevel = KycLevel.TIER_1;
+
+    @Column(name = "selfie_url")
+    private String selfieUrl;
+
+    @Column(name = "identification_doc_url")
+    private String identificationDocUrl;
 
 }
