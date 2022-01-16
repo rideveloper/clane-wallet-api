@@ -6,11 +6,11 @@ import com.ridwan.api.clanewalletapi.model.Wallet;
 import com.ridwan.api.clanewalletapi.repository.WalletRepo;
 import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.service.WalletService;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author Ridwan Mustapha
@@ -28,8 +28,7 @@ public class WalletServImpl implements WalletService {
     public Optional<Wallet> createUserWallet(User user) {
         Wallet wallet = new Wallet();
         wallet.setAccountNumber(generateAccountNumber(user.getFirstName()));
-        wallet.setUser(user);
-        wallet.setStatus(WalletStatus.OPEN);
+        wallet.setWalletStatus(WalletStatus.OPEN);
         walletRepo.saveAndFlush(wallet);
 
         return Optional.of(wallet);
@@ -61,7 +60,7 @@ public class WalletServImpl implements WalletService {
         Optional<Wallet> wallet = walletRepo.findById(walletId);
         if (wallet.isPresent()) {
             Wallet theWallet = wallet.get();
-            theWallet.setStatus(status);
+            theWallet.setWalletStatus(status);
             walletRepo.saveAndFlush(theWallet);
 
             response.setStatus(HttpStatus.OK);
@@ -73,7 +72,7 @@ public class WalletServImpl implements WalletService {
     }
 
     private String generateAccountNumber(String firstName) {
-        String randomUUIDString = RandomStringUtils.random(5);
+        String randomUUIDString = UUID.randomUUID().toString();
         return firstName + randomUUIDString;
     }
 }

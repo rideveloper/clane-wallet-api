@@ -1,8 +1,10 @@
 package com.ridwan.api.clanewalletapi.model;
 
 import com.ridwan.api.clanewalletapi.entity.Auditable;
+import com.ridwan.api.clanewalletapi.entity.BaseEntity;
 import com.ridwan.api.clanewalletapi.enums.WalletStatus;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -12,23 +14,20 @@ import java.math.BigDecimal;
  * @author Ridwan Mustapha
  */
 @Entity
-@Table(name = "wallets")
 @Data
-@EntityListeners({AuditingEntityListener.class})
-public class Wallet extends Auditable<String> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+@NoArgsConstructor
+//@EntityListeners({AuditingEntityListener.class})
+public class Wallet extends BaseEntity {
 
     @Column(unique = true)
     private String accountNumber;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private User user;
-
-    private BigDecimal balance = BigDecimal.valueOf(0.0);
+    private Double balance = 0.0;
 
     @Enumerated(EnumType.STRING)
-    private WalletStatus status = WalletStatus.CLOSED;
+    private WalletStatus walletStatus = WalletStatus.CLOSED;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

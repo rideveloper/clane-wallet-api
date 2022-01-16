@@ -1,28 +1,24 @@
 package com.ridwan.api.clanewalletapi.model;
 
-import com.ridwan.api.clanewalletapi.entity.Auditable;
+import com.ridwan.api.clanewalletapi.entity.BaseEntity;
+import com.ridwan.api.clanewalletapi.enums.PaymentType;
 import com.ridwan.api.clanewalletapi.enums.TransactionType;
-import com.ridwan.api.clanewalletapi.enums.WalletStatus;
 import lombok.Data;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * @author Ridwan Mustapha
  */
 @Entity
-@Table(name = "transactions")
 @Data
-@EntityListeners({AuditingEntityListener.class})
-public class Transaction extends Auditable<String> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(updatable = false)
-    private Long id;
+@NoArgsConstructor
+//@EntityListeners({AuditingEntityListener.class})
+public class Transaction extends BaseEntity {
 
     @NotBlank(message = "Transaction reference is compulsory")
     private String transactionReference;
@@ -34,6 +30,9 @@ public class Transaction extends Auditable<String> {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Payment payment;
+    private Double amount;
+
+    private String sourceWallet;
+    private String destinationWallet;
+
 }

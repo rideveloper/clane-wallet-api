@@ -1,7 +1,9 @@
 package com.ridwan.api.clanewalletapi.model;
 
 import com.ridwan.api.clanewalletapi.entity.Auditable;
+import com.ridwan.api.clanewalletapi.entity.BaseEntity;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
@@ -12,14 +14,11 @@ import javax.validation.constraints.NotEmpty;
  * @author Ridwan Mustapha
  */
 @Entity
-@Table(name = "users")
 @Data
-@EntityListeners({AuditingEntityListener.class})
-public class User extends Auditable<String> {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long id;
+@NoArgsConstructor
+@Table(name = "\"user\"")
+//@EntityListeners({AuditingEntityListener.class})
+public class User extends BaseEntity {
 
     @NotEmpty(message = "First Name is compulsory")
     private String firstName;
@@ -40,5 +39,10 @@ public class User extends Auditable<String> {
 
     @NotEmpty(message = "Address is compulsory")
     private String address;
+
+    @OneToOne(fetch = FetchType.LAZY,
+            cascade =  CascadeType.ALL,
+            mappedBy = "user")
+    private Wallet wallet;
 
 }
