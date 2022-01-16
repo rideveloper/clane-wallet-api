@@ -5,6 +5,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -19,7 +20,7 @@ public class TransactionRequest {
     @NotEmpty(message = "Destination Wallet is compulsory")
     private String destinationWallet;
 
-    @NotEmpty(message = "Amount is compulsory")
+    @NotNull(message = "Amount is compulsory")
     private double amount;
 
     private TransferMethod method;

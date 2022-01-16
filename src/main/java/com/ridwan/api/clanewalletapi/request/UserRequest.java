@@ -2,7 +2,6 @@ package com.ridwan.api.clanewalletapi.request;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
@@ -23,9 +22,6 @@ public class UserRequest {
     @Email
     @NotEmpty(message = "Email is compulsory")
     private String email;
-
-    @NotEmpty(message = "BVN is compulsory")
-    private String bvn;
 
     @NotEmpty(message = "Phone Number is compulsory")
     private String phoneNumber;

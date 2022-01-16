@@ -27,7 +27,4 @@ public class Wallet extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private WalletStatus walletStatus = WalletStatus.CLOSED;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 }

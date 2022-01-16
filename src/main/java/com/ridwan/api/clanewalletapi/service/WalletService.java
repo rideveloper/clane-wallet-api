@@ -14,4 +14,5 @@ public interface WalletService {
     Optional<Wallet> createUserWallet(User user);
     GenericResponse findUserWallet(String accountNumber);
     GenericResponse updateWalletStatus(Long walletId, WalletStatus status);
+    GenericResponse getBalance(String accountNumber);
 }

@@ -39,9 +39,7 @@ public class User extends BaseEntity {
     @NotEmpty(message = "Address is compulsory")
     private String address;
 
-    @OneToOne(fetch = FetchType.LAZY,
-            cascade =  CascadeType.ALL,
-            mappedBy = "user")
+    @OneToOne(fetch = FetchType.LAZY)
     private Wallet wallet;
 
     @Enumerated(EnumType.STRING)

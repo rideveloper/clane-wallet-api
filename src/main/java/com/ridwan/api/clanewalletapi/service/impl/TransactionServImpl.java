@@ -108,13 +108,13 @@ public class TransactionServImpl implements TransactionService {
         try {
             switch (type) {
                 case TOP_UP:
-                    sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
-                    checkWalletValidity(sourceWallet);
-                    sourceWallet.setBalance(sourceWallet.getBalance() + request.getAmount());
-                    walletRepo.saveAndFlush(sourceWallet);
+                    destinationWallet = walletRepo.findByAccountNumber(request.getSourceWallet());
+                    checkWalletValidity(destinationWallet);
+                    destinationWallet.setBalance(destinationWallet.getBalance() + request.getAmount());
+                    walletRepo.saveAndFlush(destinationWallet);
                     break;
                 case TRANSFER:
-                    sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
+                    sourceWallet = walletRepo.findByAccountNumber(request.getSourceWallet());
                     checkWalletValidity(sourceWallet);
                     if (sourceWallet.getBalance() <= request.getAmount()) {
                         throw new CustomException("Insufficient Balance, Please Top Up!", HttpStatus.BAD_REQUEST, Status.FAILED);
@@ -124,7 +124,7 @@ public class TransactionServImpl implements TransactionService {
                         User destinationUser = userRepo.findByEmail(request.getDestinationWallet());
                         destinationWallet = destinationUser.getWallet();
                     } else if (request.getMethod().equals(TransferMethod.ACCOUNT_NUMBER)) {
-                        destinationWallet = walletRepo.findWalletByAccountNumber(request.getDestinationWallet());
+                        destinationWallet = walletRepo.findByAccountNumber(request.getDestinationWallet());
                     }
                     checkWalletValidity(destinationWallet);
                     checkUserTransactionLimit(request.getSourceWallet(), request.getAmount());
@@ -137,7 +137,7 @@ public class TransactionServImpl implements TransactionService {
                     walletRepo.saveAndFlush(destinationWallet);
                     break;
                 case WITHDRAW:
-                    sourceWallet = walletRepo.findWalletByAccountNumber(request.getSourceWallet());
+                    sourceWallet = walletRepo.findByAccountNumber(request.getSourceWallet());
                     checkWalletValidity(sourceWallet);
                     checkUserTransactionLimit(request.getSourceWallet(), request.getAmount());
                     if (sourceWallet.getBalance() <= request.getAmount()) {

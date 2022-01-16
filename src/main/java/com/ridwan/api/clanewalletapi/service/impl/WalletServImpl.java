@@ -11,8 +11,9 @@ import com.ridwan.api.clanewalletapi.service.WalletService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.Random;
 
 /**
  * @author Ridwan Mustapha
@@ -38,10 +39,10 @@ public class WalletServImpl implements WalletService {
 
     @Override
     public GenericResponse findUserWallet(String accountNumber) {
-        Wallet wallet = walletRepo.findWalletByAccountNumber(accountNumber);
+        Wallet wallet = walletRepo.findByAccountNumber(accountNumber);
 
         if (wallet == null)
-            throw new CustomException("User Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
+            throw new CustomException("User Wallet Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
 
         return GenericResponse.builder()
                 .status(Status.SUCCESS)
@@ -68,8 +69,26 @@ public class WalletServImpl implements WalletService {
 
     }
 
+    @Override
+    public GenericResponse getBalance(String accountNumber) {
+        Wallet wallet = walletRepo.findByAccountNumber(accountNumber);
+
+        if (wallet == null)
+            throw new CustomException("User Not Found", HttpStatus.NOT_FOUND, Status.FAILED);
+
+        HashMap<String, Double> hashMap = new HashMap<>();
+        hashMap.put("Balance", wallet.getBalance());
+
+        return GenericResponse.builder()
+                .status(Status.SUCCESS)
+                .message("User Found Successfully")
+                .data(hashMap).build();
+    }
+
     private String generateAccountNumber(String firstName) {
-        String randomUUIDString = UUID.randomUUID().toString();
-        return firstName + randomUUIDString;
+        Random randomNum = new Random();
+        int randomInt = randomNum.nextInt(100);
+
+        return firstName + "-" + randomInt;
     }
 }

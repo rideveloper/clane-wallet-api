@@ -1,7 +1,6 @@
 package com.ridwan.api.clanewalletapi.controller;
 
 import com.ridwan.api.clanewalletapi.enums.WalletStatus;
-import com.ridwan.api.clanewalletapi.request.UserRequest;
 import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.service.WalletService;
 import io.swagger.annotations.Api;
@@ -27,16 +26,22 @@ public class WalletController {
         this.walletService = walletService;
     }
 
-    @PutMapping(path = "/find", consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/find")
     @ApiOperation(value = "Find Wallet")
-    public ResponseEntity<GenericResponse> find(@Valid @RequestBody UserRequest request) {
-        return ResponseEntity.ok(walletService.findUserWallet(""));
+    public ResponseEntity<GenericResponse> find(@RequestParam("accountNumber") String accountNumber) {
+        return ResponseEntity.ok(walletService.findUserWallet(accountNumber));
     }
 
-    @PostMapping(path = "/{id}/updateStatus", consumes = APPLICATION_JSON_VALUE)
+    @PutMapping(path = "/{id}/updateStatus", consumes = APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Update Wallet Status")
     public ResponseEntity<GenericResponse> updateStatus(@PathVariable("id") Long id, @RequestBody @Valid WalletStatus request) {
         return ResponseEntity.ok(walletService.updateWalletStatus(id, request));
+    }
+
+    @GetMapping(path = "/balance")
+    @ApiOperation(value = "Get Wallet Balance")
+    public ResponseEntity<GenericResponse> getBalance(@RequestParam("accountNumber") String accountNumber) {
+        return ResponseEntity.ok(walletService.getBalance(accountNumber));
     }
 
 }
