@@ -23,17 +23,9 @@ import java.time.LocalDateTime;
 public abstract class Auditable<U> {
 
     @JsonIgnore
-    @CreatedBy
-    protected U createdBy;
-
-    @JsonIgnore
     @CreatedDate
     @CreationTimestamp
     protected LocalDateTime createdDate;
-
-    @JsonIgnore
-    @LastModifiedBy
-    protected U lastModifiedBy;
 
     @JsonIgnore
     @LastModifiedDate
