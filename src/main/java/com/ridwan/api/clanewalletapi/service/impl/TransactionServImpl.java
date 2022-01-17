@@ -108,7 +108,7 @@ public class TransactionServImpl implements TransactionService {
         try {
             switch (type) {
                 case TOP_UP:
-                    destinationWallet = walletRepo.findByAccountNumber(request.getSourceWallet());
+                    destinationWallet = walletRepo.findByAccountNumber(request.getDestinationWallet());
                     checkWalletValidity(destinationWallet);
                     destinationWallet.setBalance(destinationWallet.getBalance() + request.getAmount());
                     walletRepo.saveAndFlush(destinationWallet);

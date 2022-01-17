@@ -95,7 +95,7 @@ public class UserServImpl implements UserService {
         switch (user.getKycLevel()) {
             case TIER_1:
                 //check if required doc is available
-                if (request.getSelfieUrl().isEmpty())
+                if (request.getSelfieUrl() == null || request.getSelfieUrl().isEmpty())
                     throw new CustomException("Required document not uploaded", HttpStatus.BAD_REQUEST, Status.FAILED);
 
                 //user is in tier1, upgrade to tier 2
@@ -103,7 +103,7 @@ public class UserServImpl implements UserService {
                 user.setKycLevel(KycLevel.TIER_2);
                 break;
             case TIER_2:
-                if (request.getIdentificationDocUrl().isEmpty())
+                if (request.getIdentificationDocUrl() == null || request.getIdentificationDocUrl().isEmpty())
                     throw new CustomException("Required document not uploaded", HttpStatus.BAD_REQUEST, Status.FAILED);
 
                 user.setIdentificationDocUrl(request.getSelfieUrl());
