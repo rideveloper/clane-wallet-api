@@ -16,6 +16,7 @@ import com.ridwan.api.clanewalletapi.response.GenericResponse;
 import com.ridwan.api.clanewalletapi.response.TransactionResponse;
 import com.ridwan.api.clanewalletapi.service.TransactionService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,9 @@ public class TransactionServImpl implements TransactionService {
     private final WalletRepo walletRepo;
     private final TransactionRepo transactionRepo;
     private final ModelMapper modelMapper;
+
+    @Value( "${min.transaction.amount}" )
+    private Double minimumAmount;
 
     public TransactionServImpl(UserRepo userRepo, WalletRepo walletRepo, TransactionRepo transactionRepo, ModelMapper modelMapper) {
         this.userRepo = userRepo;
@@ -92,8 +96,9 @@ public class TransactionServImpl implements TransactionService {
     }
 
     private void validateAmount(Double amount) {
-        if (amount <= 0.0) {
-            throw new CustomException("Amount must be greater than 0.0", HttpStatus.BAD_REQUEST, Status.FAILED);
+        if (amount <= minimumAmount) {
+            String msg = "Amount must be greater than "+minimumAmount;
+            throw new CustomException(msg, HttpStatus.BAD_REQUEST, Status.FAILED);
         }
     }
 
