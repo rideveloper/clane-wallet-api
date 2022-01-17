@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
  * @author Ridwan Mustapha
  */
 @Service
+@Transactional
 public class TransactionServImpl implements TransactionService {
 
     private final UserRepo userRepo;
